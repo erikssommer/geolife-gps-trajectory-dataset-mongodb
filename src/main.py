@@ -2,9 +2,17 @@ import argparse
 import time
 from datetime import datetime
 from insertData import insert_data
-from repository import QueryExecution
+from repository import Repository
+from collectionSetup import create_collections
 import os
 
+def setup_db():
+    """
+    Setup the database
+    """
+    print("Setting up database...")
+    create_collections()
+    
 
 def init_db():
     """
@@ -29,6 +37,8 @@ def dataset_is_present() -> bool:
 
 
 def main(should_init_db=False):
+    setup_db()
+
     if should_init_db:
         # Testing if dataset is in the correct folder
         if dataset_is_present():
@@ -37,7 +47,7 @@ def main(should_init_db=False):
             print("Dataset not found. Needs to be located in the root of the project folder, and be named 'dataset'")
             return
 
-    query = QueryExecution()
+    query = Repository()
     print("\n-------- Query 1 ----------")
     query.sum_user_activity_trackpoint()
 
