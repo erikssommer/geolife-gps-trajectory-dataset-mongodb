@@ -1,23 +1,24 @@
 import time
 from dbConnector import DbConnector
 from readFiles import open_all_files
+import pymongo
 
 
-def clear_db(cursor):
+def clear_db(db):
     """
     Clears all data from the database
     """
 
     print(
         f"\n{time.strftime('%H:%M:%S')} Clearing existing trackpoints from database...")
-    cursor.execute("DELETE FROM TrackPoint")
+    db.TrackPoint.delete_many({})
 
     print(
         f"\n{time.strftime('%H:%M:%S')} Clearing existing activities from database...")
-    cursor.execute("DELETE FROM Activity")
+    db.Activity.delete_many({})
 
     print(f"\n{time.strftime('%H:%M:%S')} Clearing existing users from database...\n")
-    cursor.execute("DELETE FROM User")
+    db.User.delete_many({})
 
 
 def insert_data():
@@ -26,26 +27,22 @@ def insert_data():
     """
     
     connection = DbConnector()
-    db_connection = connection.db_connection
-    cursor = connection.cursor
+    db = connection.db
 
     # Starts with clearing the database
-    clear_db(cursor)
+    clear_db(db)
 
     # Opens all files and returns a dictionary with all the data
-    users, activities_list, trackpoints_list = open_all_files()
+    users_list, activities_list, trackpoints_list = open_all_files()
 
     # insert data into database
-    print(f"\n{time.strftime('%H:%M:%S')} inserting {len(users)} users...")
-    cursor.executemany(
-        "INSERT INTO User (id, has_labels) VALUES (%s, %s)", list(users.items()))
-    db_connection.commit()
-    print(f"\n{time.strftime('%H:%M:%S')} inserted {len(users)} users")
+    print(f"\n{time.strftime('%H:%M:%S')} inserting {len(users_list)} users...")
+    db.User.insert_many(users_list)
+
+    print(f"\n{time.strftime('%H:%M:%S')} inserted {len(users_list)} users")
 
     print(f"\n{time.strftime('%H:%M:%S')} inserting {len(activities_list)} activities...")
-    cursor.executemany(
-        "INSERT INTO Activity (id, user_id, transportation_mode, start_date_time, end_date_time) VALUES (%s, %s, %s, %s, %s)", activities_list)
-    db_connection.commit()
+    db.Activity.insert_many(activities_list)
     print(f"\n{time.strftime('%H:%M:%S')} inserted {len(activities_list)} activities")
 
     # Iterates through all trackpoints and inserts them into the database in batches of 1000
@@ -59,11 +56,8 @@ def insert_data():
             counter,
             len(trackpoints_list)
         ))
-        trackpoints_string = str(
-            trackpoints_list[counter:counter + increment]).strip("[]") + ";"
-        cursor.execute(
-            f"INSERT IGNORE INTO TrackPoint (id, activity_id, lat, lon, altitude, date_days, date_time) VALUES {trackpoints_string}")
-        db_connection.commit()
+        
+        db.TrackPoint.insert_many(trackpoints_list[counter:counter + increment])
 
     # We need to insert the rest of the trackpoints if the number of trackpoints is not divisible by 1000
     print("{} Inserting trackpoints {:7.2f} % {:9,} / {:9,}".format(
@@ -73,11 +67,7 @@ def insert_data():
         len(trackpoints_list)
     )
     )
-    trackpoints_string = str(trackpoints_list[:len(
-        trackpoints_list) % increment]).strip("[]")
-    cursor.execute(
-        f"INSERT IGNORE INTO TrackPoint (id, activity_id, lat, lon, altitude, date_days, date_time) VALUES {trackpoints_string}")
-    db_connection.commit()
+    db.TrackPoint.insert_many(trackpoints_list[:len(trackpoints_list) % increment])
 
     # Close database connection after all data is inserted
     connection.close_connection()

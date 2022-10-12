@@ -142,7 +142,9 @@ def open_all_files():
                     }
 
     # prepare data for insertion, flatten the dictionaries into lists
-    activities_list = [(k, *v.values()) for k, v in activities.items()]
-    trackpoints_list = [(k, *v.values()) for k, v in trackpoints.items()]
+    users_list = [{ 'id': k, 'has_labels': v } for k, v in users.items()]
+    activities_list = [{'id': k} | v for k, v in activities.items()]
+    trackpoints_list = [{'id': k} | v for k, v in trackpoints.items()]
 
-    return users, activities_list, trackpoints_list
+
+    return users_list, activities_list, trackpoints_list
