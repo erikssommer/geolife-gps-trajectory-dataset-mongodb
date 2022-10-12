@@ -15,10 +15,9 @@ class Repository:
         Query 1 - Finding how many users, activities and trackpoints are there in the dataset
         """
 
-        res = None
-        user_sum = res[0][0]
-        activity_sum = res[0][1]
-        trackpoint_sum = res[0][2]
+        user_sum = self.db.User.count()
+        activity_sum = self.db.Activity.count()
+        trackpoint_sum = self.db.TrackPoint.count()
         print("There are {} users, {:,} activities and {:,} trackpoints in the dataset".format(
             user_sum, activity_sum, trackpoint_sum).replace(",", " "))
 
