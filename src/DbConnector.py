@@ -1,4 +1,5 @@
 from pymongo import MongoClient, version
+from decouple import config
 
 
 class DbConnector:
@@ -13,11 +14,12 @@ class DbConnector:
     """
 
     def __init__(self,
-                 DATABASE='DATABASE_NAME',
-                 HOST="tdt4225-xx.idi.ntnu.no",
-                 USER="TEST_USER",
-                 PASSWORD="test123"):
-        uri = "mongodb://%s:%s@%s/%s" % (USER, PASSWORD, HOST, DATABASE)
+                 HOST=config('MYSQL_DATABASE_HOST'),
+                 PORT=config('MYSQL_DATABASE_PORT'),
+                 DATABASE=config('MYSQL_DATABASE'),
+                 USER=config('MYSQL_USER'),
+                 PASSWORD=config('MYSQL_PASSWORD')):
+        uri = "mongodb://%s:%s@%s/%s" % (USER, PASSWORD, HOST, DATABASE, PORT)
         # Connect to the databases
         try:
             self.client = MongoClient(uri)
