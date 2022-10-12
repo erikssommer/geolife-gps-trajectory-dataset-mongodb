@@ -7,6 +7,5 @@ services:
       - 27017:27017
     env_file:
       - ../.env
-
-volumes:
-  mongodb_data_container:
+    volumes:
+      - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
