@@ -3,8 +3,16 @@ import time
 from datetime import datetime
 from insertData import insert_data
 from repository import QueryExecution
+from collectionSetup import create_collections
 import os
 
+def setup_db():
+    """
+    Setup the database
+    """
+    print("Setting up database...")
+    create_collections()
+    
 
 def init_db():
     """
@@ -29,6 +37,8 @@ def dataset_is_present() -> bool:
 
 
 def main(should_init_db=False):
+    setup_db()
+
     if should_init_db:
         # Testing if dataset is in the correct folder
         if dataset_is_present():

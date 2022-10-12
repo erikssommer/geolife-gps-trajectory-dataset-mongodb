@@ -10,17 +10,12 @@ class QueryExecution:
         self.client = self.connection.client
         self.db = self.connection.db
 
-    def execute_query(self, query):
-        self.cursor.execute(query)
-        return self.cursor.fetchall()
-
     def sum_user_activity_trackpoint(self):
         """
         Query 1 - Finding how many users, activities and trackpoints are there in the dataset
         """
 
-        query = None
-        res = self.execute_query(query)
+        res = None
         user_sum = res[0][0]
         activity_sum = res[0][1]
         trackpoint_sum = res[0][2]
@@ -32,8 +27,7 @@ class QueryExecution:
         Query 2 - Find the average number of activities per user.
         """
 
-        query = None
-        res = self.execute_query(query)
+        res = None
         average = res[0][0]
         print("The average number of activities per user is {:.2f}".format(average))
 
@@ -42,8 +36,7 @@ class QueryExecution:
         Query 3 - Find the top 20 users with the highest number of activities.
         """
 
-        query = None
-        res = self.execute_query(query)
+        res = None
 
         print("nr. user_id activities\n")
         for i, user in enumerate(res):
@@ -54,8 +47,7 @@ class QueryExecution:
         Query 4 - Find all users who have taken a taxi.
         """
 
-        query = None
-        res = self.execute_query(query)
+        res = None
 
         print("Users who have taken a taxi: " + ", ".join([x[0] for x in res]))
 
@@ -66,8 +58,7 @@ class QueryExecution:
         Does not count the rows where the mode is null.
         """
 
-        query = None
-        res = self.execute_query(query)
+        res = None
 
         print("mode        count\n")
         for row in res:
@@ -78,14 +69,12 @@ class QueryExecution:
         Query 6 - Find the year with the most activities. Testing if this also is the year with most recorded hours
         """
         # Query a - Find the year with the most activities.
-        query6a = None
-        res6a = self.execute_query(query6a)
+        res6a = None
         print("The year {} has the most activities with {:,} activities".format(
             res6a[0][0], res6a[0][1]).replace(",", " "))
 
         # Query b - Testing if this also is the year with most recorded hours
-        query6b = None
-        res6b = self.execute_query(query6b)
+        res6b = None
         print("The year {} has the most recorded hours with {:,} hours".format(
             res6b[0][0], res6b[0][1]).replace(",", " "))
 
@@ -104,9 +93,8 @@ class QueryExecution:
         Query 7 - Find the total distance (in km) walked in 2008, by user with id = 112
         """
         # Finding longitude and latitude for each trackpoint matching the user_id, mode and year
-        query = None
+        res = None
 
-        res = self.execute_query(query)
         distance = 0
         for i in range(len(res)):
             if i == len(res)-1:
@@ -121,9 +109,9 @@ class QueryExecution:
         Query 8 - Find the top 20 users who have gained the most altitude meters.
         """
 
-        query = None
+        res = None
 
-        trackpoint_altitudes = self.execute_query(query)
+        trackpoint_altitudes = res
         user_altitude = dict()
 
         # Calculating the altitude gained for each user
@@ -168,9 +156,8 @@ class QueryExecution:
         Query 9 - Find all users who have invalid activities, and the number of invalid activities per user
         """
 
-        query = None
+        res = None
 
-        res = self.execute_query(query)
         print("user_id  invalid_activities\n")
         for row in res:
             print("{} {:>23}".format(row[0], row[1]))
@@ -191,9 +178,8 @@ class QueryExecution:
         Query 11 - Find all users who have registered transportation_mode and their most used transportation_mode
         """
 
-        query = None
+        res = None
 
-        res = self.execute_query(query)
         if len(res) == 0:
             print("No users have registered transportation mode")
 

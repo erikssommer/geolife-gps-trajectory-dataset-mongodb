@@ -19,7 +19,7 @@ class DbConnector:
                  DATABASE=config('MYSQL_DATABASE'),
                  USER=config('MYSQL_USER'),
                  PASSWORD=config('MYSQL_PASSWORD')):
-        uri = "mongodb://%s:%s@%s/%s" % (USER, PASSWORD, HOST, DATABASE, PORT)
+        uri = "mongodb://%s:%s@%s:%s/%s" % (USER, PASSWORD, HOST, PORT, DATABASE)
         # Connect to the databases
         try:
             self.client = MongoClient(uri)
