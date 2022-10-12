@@ -14,11 +14,11 @@ class DbConnector:
     """
 
     def __init__(self,
-                 HOST=config('MYSQL_DATABASE_HOST'),
-                 PORT=config('MYSQL_DATABASE_PORT'),
-                 DATABASE=config('MYSQL_DATABASE'),
-                 USER=config('MYSQL_USER'),
-                 PASSWORD=config('MYSQL_PASSWORD')):
+                 HOST=config('MONGO_DATABASE_HOST'),
+                 PORT=config('MONGO_DATABASE_PORT'),
+                 DATABASE=config('MONGO_INITDB_DATABASE'),
+                 USER=config('MONGO_USER'),
+                 PASSWORD=config('MONGO_PASSWORD')):
         uri = "mongodb://%s:%s@%s:%s/%s" % (USER, PASSWORD, HOST, PORT, DATABASE)
         # Connect to the databases
         try:
