@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "✨ Running init-mongo.sh"
+
 mongosh -- "$MONGO_INITDB_DATABASE" <<EOF
     var rootUser = '$MONGO_INITDB_ROOT_USERNAME';
     var rootPassword = '$MONGO_INITDB_ROOT_PASSWORD';
@@ -13,5 +15,6 @@ mongosh -- "$MONGO_INITDB_DATABASE" <<EOF
     db.createCollection('User');
     db.createCollection('Activity');
     db.createCollection('TrackPoint');
-
 EOF
+
+echo "✅ init-mongo.sh finished"
