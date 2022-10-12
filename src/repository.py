@@ -4,7 +4,7 @@ from dbConnector import DbConnector
 from haversine import haversine
 
 
-class QueryExecution:
+class Repository:
     def __init__(self):
         self.connection = DbConnector()
         self.client = self.connection.client

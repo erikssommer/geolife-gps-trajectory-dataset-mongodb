@@ -2,7 +2,7 @@ import argparse
 import time
 from datetime import datetime
 from insertData import insert_data
-from repository import QueryExecution
+from repository import Repository
 from collectionSetup import create_collections
 import os
 
@@ -47,7 +47,7 @@ def main(should_init_db=False):
             print("Dataset not found. Needs to be located in the root of the project folder, and be named 'dataset'")
             return
 
-    query = QueryExecution()
+    query = Repository()
     print("\n-------- Query 1 ----------")
     query.sum_user_activity_trackpoint()
 
