@@ -79,9 +79,26 @@ class Repository:
         Query 4 - Find all users who have taken a taxi.
         """
 
-        res = None
+        res = self.db.Activity.aggregate([
+            {
+                '$match': {
+                    'transportation_mode': 'taxi'
+                }
+            },
+            {
+                '$group': {
+                    '_id': '$user_id'
+                }
+            }
+            ,
+            {
+                '$sort': {
+                    '_id': 1
+                }
+            }
+        ])
 
-        print("Users who have taken a taxi: " + ", ".join([x[0] for x in res]))
+        print("Users who have taken a taxi: " + ", ".join([x['_id'] for x in res]))
 
     def activity_transport_mode_count(self):
         """
