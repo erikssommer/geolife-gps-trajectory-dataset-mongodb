@@ -1,4 +1,5 @@
 from dis import dis
+import re
 from turtle import distance
 from dbConnector import DbConnector
 from haversine import haversine
@@ -73,7 +74,8 @@ class Repository:
 
         print("nr. user_id activities\n")
         for i, user in enumerate(res):
-            print("{:2} {:>8} {:>10}".format(i + 1, user['_id'], user['count']))
+            print("{:2} {:>8} {:>10}".format(
+                i + 1, user['_id'], user['count']))
 
     def users_taken_taxi(self):
         """
@@ -90,8 +92,7 @@ class Repository:
                 '$group': {
                     '_id': '$user_id'
                 }
-            }
-            ,
+            },
             {
                 '$sort': {
                     '_id': 1
@@ -99,7 +100,8 @@ class Repository:
             }
         ])
 
-        print("Users who have taken a taxi: " + ", ".join([x['_id'] for x in res]))
+        print("Users who have taken a taxi: " +
+              ", ".join([x['_id'] for x in res]))
 
     def activity_transport_mode_count(self):
         """
@@ -140,21 +142,77 @@ class Repository:
         Query 6 - Find the year with the most activities. Testing if this also is the year with most recorded hours
         """
         # Query a - Find the year with the most activities.
-        res6a = None
+        res6a = self.db.Activity.aggregate([
+            {
+                '$group': {
+                    '_id': {
+                        '$year': '$start_date_time'
+                    },
+                    'count': {
+                        '$sum': 1
+                    }
+                }
+            },
+            {
+                '$sort': {
+                    'count': -1
+                }
+            },
+            {
+                '$limit': 1
+            }
+        ])
+
+        obj_res_6a = list(res6a)
+        year_a = obj_res_6a[0]['_id']
+        count_a = obj_res_6a[0]['count']
+
         print("The year {} has the most activities with {:,} activities".format(
-            res6a[0][0], res6a[0][1]).replace(",", " "))
+            year_a, count_a).replace(",", " "))
 
         # Query b - Testing if this also is the year with most recorded hours
-        res6b = None
+        res6b = self.db.Activity.aggregate([
+            {
+                '$group': {
+                    '_id': {
+                        '$year': '$start_date_time'
+                    },
+                    'sum': {
+                        '$sum': {
+                            '$divide': [
+                                {
+                                    '$subtract': [
+                                        '$end_date_time', '$start_date_time'
+                                    ]
+                                }, 1000 * 60 * 60
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                '$sort': {
+                    'sum': -1
+                }
+            },
+            {
+                '$limit': 5
+            }
+        ])
+
+        obj_res_6b = list(res6b)
+        year_b = obj_res_6b[0]['_id']
+        sum_b = obj_res_6b[0]['sum']
+
         print("The year {} has the most recorded hours with {:,} hours".format(
-            res6b[0][0], res6b[0][1]).replace(",", " "))
+            year_b, round(sum_b)).replace(",", " "))
 
         print("\nyear   hours\n")
-        for row in res6b:
-            print("{}  {:>6,}".format(row[0], row[1]).replace(",", " "))
+        for row in obj_res_6b:
+            print("{}  {:>6,}".format(row['_id'], round(row['sum'])).replace(",", " "))
 
         # Testing if the year with most activities also is the year with most recorded hours
-        if res6b[0][0] == res6a[0][0]:
+        if year_a == year_b:
             print("\nYes, this is also the year with most recorded hours!")
         else:
             print("\nNo, this is not the year with most recorded hours")
