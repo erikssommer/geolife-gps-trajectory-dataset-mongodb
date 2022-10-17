@@ -34,8 +34,7 @@ class Repository:
                         '$count': {}
                     }
                 }
-            }
-            ,{
+            }, {
                 '$group': {
                     '_id': 'null',
                     'avg': {
@@ -52,11 +51,28 @@ class Repository:
         Query 3 - Find the top 20 users with the highest number of activities.
         """
 
-        res = None
+        res = self.db.Activity.aggregate([
+            {
+                '$group': {
+                    '_id': '$user_id',
+                    'count': {
+                        '$sum': 1
+                    }
+                }
+            },
+            {
+                '$sort': {
+                    'count': -1
+                }
+            },
+            {
+                '$limit': 20
+            }
+        ])
 
         print("nr. user_id activities\n")
         for i, user in enumerate(res):
-            print("{:2} {:>8} {:>10}".format(i + 1, user[0], user[1]))
+            print("{:2} {:>8} {:>10}".format(i + 1, user['_id'], user['count']))
 
     def users_taken_taxi(self):
         """
