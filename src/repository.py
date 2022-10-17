@@ -2,6 +2,7 @@ from dis import dis
 from turtle import distance
 from dbConnector import DbConnector
 from haversine import haversine
+from pprint import pprint
 
 
 class Repository:
@@ -25,10 +26,26 @@ class Repository:
         """
         Query 2 - Find the average number of activities per user.
         """
+        res = self.db.Activity.aggregate([
+            {
+                '$group': {
+                    '_id': '$user_id',
+                    'sum': {
+                        '$count': {}
+                    }
+                }
+            }
+            ,{
+                '$group': {
+                    '_id': 'null',
+                    'avg': {
+                        '$avg': '$sum'
+                    }
+                }
+            }
+        ])
 
-        res = None
-        average = res[0][0]
-        print("The average number of activities per user is {:.2f}".format(average))
+        print('The average number of activities per user is {:.2f}'.format(list(res)[0]['avg']))
 
     def top_twenty_users(self):
         """
