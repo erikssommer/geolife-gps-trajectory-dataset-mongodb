@@ -44,7 +44,8 @@ class Repository:
             }
         ])
 
-        print('The average number of activities per user is {:.2f}'.format(list(res)[0]['avg']))
+        print('The average number of activities per user is {:.2f}'.format(
+            list(res)[0]['avg']))
 
     def top_twenty_users(self):
         """
@@ -90,11 +91,32 @@ class Repository:
         Does not count the rows where the mode is null.
         """
 
-        res = None
+        res = self.db.Activity.aggregate([
+            {
+                '$match': {
+                    'transportation_mode': {
+                        '$ne': ''
+                    }
+                }
+            },
+            {
+                '$group': {
+                    '_id': '$transportation_mode',
+                    'count': {
+                        '$sum': 1
+                    }
+                }
+            },
+            {
+                '$sort': {
+                    'count': -1
+                }
+            }
+        ])
 
         print("mode        count\n")
         for row in res:
-            print("{:11} {:>5}".format(row[0], row[1]))
+            print("{:11} {:>5}".format(row['_id'], row['count']))
 
     def year_with_most_activities(self):
         """
@@ -134,7 +156,8 @@ class Repository:
             # Calculating distance between two points using haversine formula
             distance += haversine(res[i], res[i+1])
 
-        print("The total distance walked in 2008 by user 112 is {:.2f} km".format(distance))
+        print(
+            "The total distance walked in 2008 by user 112 is {:.2f} km".format(distance))
 
     def top_20_users_gained_most_altitude_meters(self):
         """
