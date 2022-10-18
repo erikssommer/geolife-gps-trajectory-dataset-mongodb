@@ -1,7 +1,6 @@
 import time
 from dbConnector import DbConnector
 from readFiles import open_all_files
-import pymongo
 
 
 def clear_db(db):
