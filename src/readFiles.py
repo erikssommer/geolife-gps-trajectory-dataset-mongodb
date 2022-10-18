@@ -134,6 +134,7 @@ def open_all_files():
 
                     trackpoints[trackpoint_id] = {
                         "activity_id": activity_id,
+                        "user_id": user_id,
                         "lat": row["lat"],
                         "lon": row["long"],
                         "altitude": "" if row["altitude"] == -777 else row["altitude"],
