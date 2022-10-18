@@ -221,15 +221,47 @@ class Repository:
         """ 
         Query 7 - Find the total distance (in km) walked in 2008, by user with id = 112
         """
-        # Finding longitude and latitude for each trackpoint matching the user_id, mode and year
-        res = None
+
+        res_activities = self.db.Activity.find({
+            "user_id": "112",
+            "transportation_mode": "walk"
+        }, {
+            "_id": False,
+            "id": True
+        })
+
+        activities_list = [x['id'] for x in res_activities]
+
+        res_trackpoints = self.db.TrackPoint.find({
+            "activity_id": {
+                "$in": activities_list
+            }
+        }, {
+            "_id": False,
+            "id": True,
+            "activity_id": True,
+            "lat": True,
+            "lon": True
+        })
+
+        trackpoints_list = list(res_trackpoints)
 
         distance = 0
-        for i in range(len(res)):
-            if i == len(res)-1:
-                break
-            # Calculating distance between two points using haversine formula
-            distance += haversine(res[i], res[i+1])
+
+        for i in range(len(trackpoints_list) - 1):
+            activity_id = trackpoints_list[i]['activity_id']
+            next_activity_id = trackpoints_list[i + 1]['activity_id']
+
+            # If the next trackpoint is not in the same activity we skip
+            if activity_id != next_activity_id:
+                continue
+            
+            lat1 = trackpoints_list[i]['lat']
+            lon1 = trackpoints_list[i]['lon']
+            lat2 = trackpoints_list[i + 1]['lat']
+            lon2 = trackpoints_list[i + 1]['lon']
+
+            distance += haversine((lat1, lon1), (lat2, lon2))
 
         print(
             "The total distance walked in 2008 by user 112 is {:.2f} km".format(distance))
