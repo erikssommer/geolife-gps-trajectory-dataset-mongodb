@@ -222,6 +222,7 @@ class Repository:
         Query 7 - Find the total distance (in km) walked in 2008, by user with id = 112
         """
 
+        # Get all activity ids for user 112 in 2008 with transportation mode walk
         res_activities = self.db.Activity.find({
             "user_id": "112",
             "transportation_mode": "walk"
@@ -232,6 +233,7 @@ class Repository:
 
         activities_list = [x['id'] for x in res_activities]
 
+        # Use the activity ids to get the related trackpoints
         res_trackpoints = self.db.TrackPoint.find({
             "activity_id": {
                 "$in": activities_list
@@ -248,11 +250,13 @@ class Repository:
 
         distance = 0
 
+        # Loop through the trackpoints and calculate the distance between each point
         for i in range(len(trackpoints_list) - 1):
             activity_id = trackpoints_list[i]['activity_id']
             next_activity_id = trackpoints_list[i + 1]['activity_id']
 
             # If the next trackpoint is not in the same activity we skip
+            # as we only want to calculate the distance between trackpoints in the same activity
             if activity_id != next_activity_id:
                 continue
             
@@ -261,6 +265,7 @@ class Repository:
             lat2 = trackpoints_list[i + 1]['lat']
             lon2 = trackpoints_list[i + 1]['lon']
 
+            # Calculate the distance between the two points using haversine
             distance += haversine((lat1, lon1), (lat2, lon2))
 
         print(
@@ -279,7 +284,6 @@ class Repository:
         })
 
         trackpoint_altitudes = list(res)
-        print(trackpoint_altitudes[:5])
         user_altitude = dict()
 
         # Calculating the altitude gained for each user
@@ -398,6 +402,7 @@ class Repository:
         Query 11 - Find all users who have registered transportation_mode and their most used transportation_mode
         """
 
+        # Getting all users who have registered a transportation_mode
         res = self.db.Activity.find({
             'transportation_mode': {
                 '$ne': ''
@@ -424,6 +429,7 @@ class Repository:
             if transportation_mode not in user_transportation_mode[user_id]:
                 user_transportation_mode[user_id][transportation_mode] = 0
 
+            # Increment the count for the given transportation_mode
             user_transportation_mode[user_id][transportation_mode] += 1
 
         # Sorting the dict by the date_time gained
