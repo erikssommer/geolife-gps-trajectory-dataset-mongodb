@@ -100,8 +100,8 @@ def open_all_files():
                     activities[activity_id] = {
                         "user_id": user_id,
                         "transportation_mode": row["transportation_mode"],
-                        "start_date_time": datetime.strptime(formatted_start_date, "%Y-%m-%d %H:%M:%S"),
-                        "end_date_time": datetime.strptime(formatted_end_date, "%Y-%m-%d %H:%M:%S")
+                        "start_date_time": datetime.strptime(str(formatted_start_date), "%Y-%m-%d %H:%M:%S"),
+                        "end_date_time": datetime.strptime(str(formatted_end_date), "%Y-%m-%d %H:%M:%S")
                     }
 
             # else we are reading plot file
@@ -121,8 +121,8 @@ def open_all_files():
                     activities[activity_id] = {
                         "user_id": user_id,
                         "transportation_mode": "",
-                        "start_date_time": datetime.strptime(start_date_time, "%Y-%m-%d %H:%M:%S"),
-                        "end_date_time": datetime.strptime(end_date_time, "%Y-%m-%d %H:%M:%S")
+                        "start_date_time": datetime.strptime(str(start_date_time), "%Y-%m-%d %H:%M:%S"),
+                        "end_date_time": datetime.strptime(str(end_date_time), "%Y-%m-%d %H:%M:%S")
                     }
 
                 # iterates all rows (trackpoints) in the dataframe/plot file
@@ -139,7 +139,7 @@ def open_all_files():
                         "lon": row["long"],
                         "altitude": "" if row["altitude"] == -777 else row["altitude"],
                         "date_days": row["date"].replace("-", ""),
-                        "date_time": datetime.strptime(row["date"] + " " + row["date_time"], "%Y-%m-%d %H:%M:%S")
+                        "date_time": datetime.strptime(str(row["date"] + " " + row["date_time"]), "%Y-%m-%d %H:%M:%S")
                     }
 
     # prepare data for insertion, flatten the dictionaries into lists
