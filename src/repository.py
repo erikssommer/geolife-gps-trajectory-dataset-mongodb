@@ -239,9 +239,15 @@ class Repository:
         Query 8 - Find the top 20 users who have gained the most altitude meters.
         """
 
-        res = None
+        res = self.db.TrackPoint.find({}, {
+            '_id': False,
+            'user_id': True,
+            'activity_id': True,
+            'altitude': True  
+        })
 
-        trackpoint_altitudes = res
+        trackpoint_altitudes = list(res)
+        print(trackpoint_altitudes[:5])
         user_altitude = dict()
 
         # Calculating the altitude gained for each user
@@ -250,10 +256,9 @@ class Repository:
             if index == len(trackpoint_altitudes) - 1:
                 break
 
-            user_id = trackpoint_altitudes[index][0]
-            activity_id = trackpoint_altitudes[index][1]
-
-            next_activity_id = trackpoint_altitudes[index + 1][1]
+            user_id = trackpoint_altitudes[index]['user_id']
+            activity_id = trackpoint_altitudes[index]['activity_id']
+            next_activity_id = trackpoint_altitudes[index + 1]['activity_id']
 
             # We can only calculate the altitude gain if we have two trackpoints from the same activity
             if activity_id != next_activity_id:
@@ -263,8 +268,8 @@ class Repository:
             if user_id not in user_altitude:
                 user_altitude[user_id] = 0
 
-            altitude = trackpoint_altitudes[index][2]
-            next_altitude = trackpoint_altitudes[index + 1][2]
+            altitude = trackpoint_altitudes[index]['altitude']
+            next_altitude = trackpoint_altitudes[index + 1]['altitude']
 
             # If one of the altitudes are null they were -777 before cleanup and are invalid
             if not altitude or not next_altitude:
@@ -279,40 +284,121 @@ class Repository:
 
         print("nr. user_id altitude\n")
         for i, (user_id, altitude) in enumerate(user_altitude_array[:20]):
-            print("{:3} {:>7} {:>8}".format(i + 1, user_id, altitude))
+            print("{:3} {:>7} {:>8.0f}".format(i + 1, user_id, altitude))
 
     def invalid_activities_per_user(self):
         """
         Query 9 - Find all users who have invalid activities, and the number of invalid activities per user
         """
 
-        res = None
+        res = self.db.TrackPoint.find({}, {
+            '_id': False,
+            'user_id': True,
+            'activity_id': True,
+            'date_time': True
+        })
+
+        trackpoints = list(res)
+        invalid_user_activities = dict()
+
+        # Comparing every two trackpoints to see if they are invalid
+        for index in range(len(trackpoints)):
+            # Breaking if the last trackpoint is reached
+            if index == len(trackpoints) - 1:
+                break
+
+            user_id = trackpoints[index]['user_id']
+            activity_id = trackpoints[index]['activity_id']
+            next_activity_id = trackpoints[index + 1]['activity_id']
+
+            # We can only compare if we have two trackpoints from the same activity
+            if activity_id != next_activity_id:
+                continue
+
+            # Initialize the invalid_activities dict if the user_id is not in it
+            if user_id not in invalid_user_activities:
+                invalid_user_activities[user_id] = set()
+
+            date_time = trackpoints[index]['date_time']
+            next_date_time = trackpoints[index + 1]['date_time']
+
+            date_time_diff = next_date_time - date_time
+            if date_time_diff.seconds > 60 * 5:
+                invalid_user_activities[user_id].add(activity_id)
+
+        # Sorting the dict by the date_time gained
+        sorted_invalid_activities = sorted(invalid_user_activities.items())
 
         print("user_id  invalid_activities\n")
-        for row in res:
-            print("{} {:>23}".format(row[0], row[1]))
+        for user_id, activities in sorted_invalid_activities:
+            print("{} {:>23}".format(user_id, len(activities)))
 
     def users_tracked_activity_in_the_forbidden_city_beijing(self):
         """
         Query 10 - Find the users who have tracked an activity in the Forbidden City of Beijing.
         """
 
-        query = None
-        res = self.execute_query(query)
-        for row in res:
-            print("User {} has {} trackpoints in the forbidden city".format(
-                row[0], row[1]))
+        res = self.db.TrackPoint.aggregate([
+            {
+                '$match': {
+                'lat': {
+                    '$gte': 39.916,
+                    '$lte': 39.917
+                },
+                'lon': {
+                    '$gte': 116.397,
+                    '$lte': 116.398
+                }
+                }
+            },
+            {
+                '$group': {
+                '_id': '$user_id',
+                }
+            }
+        ])
+
+        for row in list(res):
+            print("User {} has trackpoints in the forbidden city".format(row['_id']))
 
     def users_registered_transportation_mode_and_their_most_used_transportation_mode(self):
         """
         Query 11 - Find all users who have registered transportation_mode and their most used transportation_mode
         """
 
-        res = None
+        res = self.db.Activity.find({
+            'transportation_mode': {
+                '$ne': ''
+            }
+        }, {
+            '_id': False,
+            'user_id': True,
+            'transportation_mode': True
+        })
 
-        if len(res) == 0:
-            print("No users have registered transportation mode")
+        activities = list(res)
+
+        user_transportation_mode = dict()
+
+        for activity in activities:
+            user_id = activity['user_id']
+            transportation_mode = activity['transportation_mode']
+
+            # Initialize the user_transportation_mode dict if the user_id is not in it
+            if user_id not in user_transportation_mode:
+                user_transportation_mode[user_id] = dict()
+
+            # Initialize the transportation_mode dict if the transportation_mode is not in it
+            if transportation_mode not in user_transportation_mode[user_id]:
+                user_transportation_mode[user_id][transportation_mode] = 0
+
+            user_transportation_mode[user_id][transportation_mode] += 1
+
+        # Sorting the dict by the date_time gained
+        sorted_user_transportation_mode = sorted(user_transportation_mode.items())
 
         print("user_id transportation_mode count\n")
-        for user in res:
-            print("{:7} {:18} {:6}".format(user[0], user[1], user[2]))
+        for user_id, transportation_modes in sorted_user_transportation_mode:
+            transportation_mode = max(transportation_modes, key=transportation_modes.get)
+
+            print("{:7} {:18} {:6}".format(user_id, transportation_mode, transportation_modes[transportation_mode]))
