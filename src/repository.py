@@ -3,6 +3,10 @@ from haversine import haversine
 
 
 class Repository:
+    """
+    Class for querying the MongoDB database
+    """
+
     def __init__(self):
         self.connection = DbConnector()
         self.client = self.connection.client
@@ -68,13 +72,13 @@ class Repository:
             }
         ])
 
-        array = []
+        result = []
         counter = 0
         for row in res:
             counter+=1
-            array.append([counter, row["_id"], row["count"]])
+            result.append([counter, row["_id"], row["count"]])
         
-        return array
+        return result
 
     def users_taken_taxi(self):
         """
@@ -99,11 +103,11 @@ class Repository:
             }
         ])
 
-        array = []
+        result = []
         for row in res:
-            array.append([row['_id']])
+            result.append([row['_id']])
         
-        return array
+        return result
 
     def activity_transport_mode_count(self):
         """
@@ -135,11 +139,11 @@ class Repository:
             }
         ])
 
-        array = []
+        result = []
         for row in res:
-            array.append([row['_id'], row['count']])
+            result.append([row['_id'], row['count']])
 
-        return array
+        return result
 
 
     def year_with_most_activities(self):
@@ -218,12 +222,12 @@ class Repository:
         else:
             print("\nNo, this is not the year with most recorded hours\n")
 
-        array = []
+        result = []
 
         for row in obj_res_6b:
-            array.append([row['_id'], round(row['sum'])])
+            result.append([row['_id'], round(row['sum'])])
         
-        return array
+        return result
 
     def total_distance_in_km_walked_in_2008_by_userid_112(self):
         """ 
@@ -325,12 +329,12 @@ class Repository:
         user_altitude_array = sorted(
             user_altitude.items(), key=lambda x: x[1], reverse=True)
 
-        array = []
+        result = []
 
         for i, (user_id, altitude) in enumerate(user_altitude_array[:20]):
-            array.append([i + 1, user_id, round(altitude)])
+            result.append([i + 1, user_id, round(altitude)])
         
-        return array
+        return result
 
     def invalid_activities_per_user(self):
         """
@@ -375,12 +379,12 @@ class Repository:
         # Sorting the dict by the date_time gained
         sorted_invalid_activities = sorted(invalid_user_activities.items())
 
-        array = []
+        result = []
 
         for user_id, activities in sorted_invalid_activities:
-            array.append([user_id, len(activities)])
+            result.append([user_id, len(activities)])
         
-        return array
+        return result
 
     def users_tracked_activity_in_the_forbidden_city_beijing(self):
         """
@@ -407,12 +411,12 @@ class Repository:
             }
         ])
 
-        array = []
+        result = []
 
         for row in list(res):
-            array.append(f"User {row['_id']} has trackpoints in the forbidden city\n")
+            result.append(f"User {row['_id']} has trackpoints in the forbidden city\n")
 
-        return array
+        return result
 
     def most_used_transportation_mode_per_user(self):
         """
@@ -452,10 +456,10 @@ class Repository:
         # Sorting the dict by the date_time gained
         sorted_user_transportation_mode = sorted(user_transportation_mode.items())
 
-        array = []
+        result = []
 
         for user_id, transportation_modes in sorted_user_transportation_mode:
             transportation_mode = max(transportation_modes, key=transportation_modes.get)
-            array.append([user_id, transportation_mode, transportation_modes[transportation_mode]])
+            result.append([user_id, transportation_mode, transportation_modes[transportation_mode]])
         
-        return array
+        return result
