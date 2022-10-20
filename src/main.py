@@ -17,10 +17,8 @@ def init_db():
     insert_data()
     end_datetime = time.strftime(FMT)
     # Calculate the time difference
-    total_datetime = datetime.strptime(
-        end_datetime, FMT) - datetime.strptime(start_datetime, FMT)
-    print(
-        f"Started: {start_datetime}\nFinished: {end_datetime}\nTotal: {total_datetime}")
+    total_datetime = datetime.strptime(end_datetime, FMT) - datetime.strptime(start_datetime, FMT)
+    print(f"Started: {start_datetime}\nFinished: {end_datetime}\nTotal: {total_datetime}")
 
 def dataset_is_present() -> bool:
     if os.path.exists("../dataset"):
@@ -36,7 +34,7 @@ def main(should_init_db=False):
         if dataset_is_present():
             init_db()
         else:
-            print("Dataset not found. Needs to be located in the root of the project folder, and be named 'dataset'")
+            print("Dataset not found. Add 'dataset' to the root of the project folder")
             return
 
     query = Repository()
@@ -97,8 +95,7 @@ def main(should_init_db=False):
 if __name__ == "__main__":
     # Enables flag to initialize database
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--init_database",
-                        action="store_true", help="Initialize the database")
+    parser.add_argument("-i", "--init_database", action="store_true", help="Initialize the database")
     args = parser.parse_args()
 
     main(args.init_database)

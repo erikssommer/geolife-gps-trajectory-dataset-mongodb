@@ -8,12 +8,10 @@ def clear_db(db):
     Clears all data from the database
     """
 
-    print(
-        f"\n{time.strftime('%H:%M:%S')} Clearing existing trackpoints from database...")
+    print(f"\n{time.strftime('%H:%M:%S')} Clearing existing trackpoints from database...")
     db.TrackPoint.delete_many({})
 
-    print(
-        f"\n{time.strftime('%H:%M:%S')} Clearing existing activities from database...")
+    print(f"\n{time.strftime('%H:%M:%S')} Clearing existing activities from database...")
     db.Activity.delete_many({})
 
     print(f"\n{time.strftime('%H:%M:%S')} Clearing existing users from database...\n")

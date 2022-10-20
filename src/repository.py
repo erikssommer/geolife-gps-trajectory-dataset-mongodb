@@ -45,8 +45,7 @@ class Repository:
             }
         ])
 
-        return 'The average number of activities per user is {:.2f}'.format(
-            list(res)[0]['avg'])
+        return 'The average number of activities per user is {:.2f}'.format(list(res)[0]['avg'])
 
     def top_twenty_users(self):
         """
