@@ -1,5 +1,4 @@
 import argparse
-from pprint import pprint
 import time
 from datetime import datetime
 from insertData import insert_data

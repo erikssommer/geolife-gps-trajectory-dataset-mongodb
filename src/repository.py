@@ -1,7 +1,5 @@
-from array import array
 from dbConnector import DbConnector
 from haversine import haversine
-from pprint import pprint
 
 
 class Repository:
