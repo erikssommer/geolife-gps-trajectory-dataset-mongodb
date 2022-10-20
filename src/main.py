@@ -1,9 +1,11 @@
 import argparse
+from pprint import pprint
 import time
 from datetime import datetime
 from insertData import insert_data
 from repository import Repository
 import os
+from tabulate import tabulate
     
 
 def init_db():
@@ -39,40 +41,55 @@ def main(should_init_db=False):
             return
 
     query = Repository()
+
+    table_format = 'github' # Table format for tabulate
+
     print("\n-------- Query 1 ----------")
-    query.sum_user_activity_trackpoint()
+    value = query.sum_user_activity_trackpoint()
+    print(value)
 
     print("\n-------- Query 2 ----------")
-    query.average_number_of_activities_per_user()
+    value = query.average_number_of_activities_per_user()
+    print(value)
 
-    print("\n-------- Query 3 ----------")
-    query.top_twenty_users()
+    print("\n-------- Query 3 ----------\n")
+    headers = ['nr.','user id', 'activities']
+    print(tabulate(query.top_twenty_users(), headers=headers, tablefmt=table_format))
 
     print("\n-------- Query 4 ----------")
-    query.users_taken_taxi()
+    headers = ['user id']
+    print("Users who have taken a taxi\n") 
+    print(tabulate(query.users_taken_taxi(), headers=headers, tablefmt=table_format))
 
-    print("\n-------- Query 5 ----------")
-    query.activity_transport_mode_count()
+    print("\n-------- Query 5 ----------\n")
+    headers = ['mode', 'count']
+    print(tabulate(query.activity_transport_mode_count(), headers=headers, tablefmt=table_format))
 
     print("\n-------- Query 6 ----------")
-    query.year_with_most_activities()
+    headers = ['year', 'hours']
+    print(tabulate(query.year_with_most_activities(), headers=headers, tablefmt=table_format))
 
     print("\n-------- Query 7 ----------")
-    query.total_distance_in_km_walked_in_2008_by_userid_112()
+    value = query.total_distance_in_km_walked_in_2008_by_userid_112()
+    print("The total distance walked in 2008 by user 112 is {:.2f} km".format(value))
 
     print("\n-------- Query 8 ----------")
     print("This one takes a while...\n")
-    query.top_20_users_gained_most_altitude_meters()
+    headers = ['nr.', 'user id', 'altitude']
+    print(tabulate(query.top_20_users_gained_most_altitude_meters(), headers=headers, tablefmt=table_format))
 
     print("\n-------- Query 9 ----------")
     print("This one takes a while...\n")
-    query.invalid_activities_per_user()
+    headers = ['user_id', 'invalid_activities']
+    print(tabulate(query.invalid_activities_per_user(), headers=headers, tablefmt=table_format))
 
     print("\n-------- Query 10 ----------")
-    query.users_tracked_activity_in_the_forbidden_city_beijing()
+    values = query.users_tracked_activity_in_the_forbidden_city_beijing()
+    print(''.join(values))
 
-    print("\n-------- Query 11 ----------")
-    query.users_registered_transportation_mode_and_their_most_used_transportation_mode()
+    print("\n-------- Query 11 ----------\n")
+    headers = ['user id', 'transportation mode', 'count']
+    print(tabulate(query.most_used_transportation_mode_per_user(), headers=headers, tablefmt=table_format))
 
     # Close the connection after all queries are executed
     query.connection.close_connection()
