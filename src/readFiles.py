@@ -86,10 +86,8 @@ def open_all_files():
 
                 # iterates over all rows and adds the label to the activity
                 for _, row in df.iterrows():
-                    stripped_start_date = row["start_date_time"].split(" ")[
-                        0].replace("/", "")
-                    stripped_start_time = row["start_date_time"].split(" ")[
-                        1].replace(":", "")
+                    stripped_start_date = row["start_date_time"].split(" ")[0].replace("/", "")
+                    stripped_start_time = row["start_date_time"].split(" ")[1].replace(":", "")
 
                     activity_id = user_id + "_" + stripped_start_date + stripped_start_time
 
@@ -113,10 +111,8 @@ def open_all_files():
                 # if the activity does not exist we need to create it
                 # it may have been created from the labels file
                 if not activity_id in activities and not df.empty:
-                    start_date_time = df.iloc[0]["date"] + \
-                        " " + df.iloc[0]["date_time"]
-                    end_date_time = df.iloc[-1]["date"] + \
-                        " " + df.iloc[-1]["date_time"]
+                    start_date_time = df.iloc[0]["date"] + " " + df.iloc[0]["date_time"]
+                    end_date_time = df.iloc[-1]["date"] + " " + df.iloc[-1]["date_time"]
 
                     activities[activity_id] = {
                         "user_id": user_id,

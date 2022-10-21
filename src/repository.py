@@ -1,12 +1,12 @@
-from dis import dis
-import re
-from turtle import distance
 from dbConnector import DbConnector
 from haversine import haversine
-from pprint import pprint
 
 
 class Repository:
+    """
+    Class for querying the MongoDB database
+    """
+
     def __init__(self):
         self.connection = DbConnector()
         self.client = self.connection.client
@@ -20,8 +20,8 @@ class Repository:
         user_sum = self.db.User.count()
         activity_sum = self.db.Activity.count()
         trackpoint_sum = self.db.TrackPoint.count()
-        print("There are {} users, {:,} activities and {:,} trackpoints in the dataset".format(
-            user_sum, activity_sum, trackpoint_sum).replace(",", " "))
+        return "There are {} users, {:,} activities and {:,} trackpoints in the dataset".format(
+            user_sum, activity_sum, trackpoint_sum).replace(",", " ")
 
     def average_number_of_activities_per_user(self):
         """
@@ -45,8 +45,7 @@ class Repository:
             }
         ])
 
-        print('The average number of activities per user is {:.2f}'.format(
-            list(res)[0]['avg']))
+        return 'The average number of activities per user is {:.2f}'.format(list(res)[0]['avg'])
 
     def top_twenty_users(self):
         """
@@ -72,10 +71,13 @@ class Repository:
             }
         ])
 
-        print("nr. user_id activities\n")
-        for i, user in enumerate(res):
-            print("{:2} {:>8} {:>10}".format(
-                i + 1, user['_id'], user['count']))
+        result = []
+        counter = 0
+        for row in res:
+            counter+=1
+            result.append([counter, row["_id"], row["count"]])
+        
+        return result
 
     def users_taken_taxi(self):
         """
@@ -100,8 +102,11 @@ class Repository:
             }
         ])
 
-        print("Users who have taken a taxi: " +
-              ", ".join([x['_id'] for x in res]))
+        result = []
+        for row in res:
+            result.append([row['_id']])
+        
+        return result
 
     def activity_transport_mode_count(self):
         """
@@ -133,9 +138,12 @@ class Repository:
             }
         ])
 
-        print("mode        count\n")
+        result = []
         for row in res:
-            print("{:11} {:>5}".format(row['_id'], row['count']))
+            result.append([row['_id'], row['count']])
+
+        return result
+
 
     def year_with_most_activities(self):
         """
@@ -207,15 +215,18 @@ class Repository:
         print("The year {} has the most recorded hours with {:,} hours".format(
             year_b, round(sum_b)).replace(",", " "))
 
-        print("\nyear   hours\n")
-        for row in obj_res_6b:
-            print("{}  {:>6,}".format(row['_id'], round(row['sum'])).replace(",", " "))
-
         # Testing if the year with most activities also is the year with most recorded hours
         if year_a == year_b:
-            print("\nYes, this is also the year with most recorded hours!")
+            print("\nYes, this is also the year with most recorded hours!\n")
         else:
-            print("\nNo, this is not the year with most recorded hours")
+            print("\nNo, this is not the year with most recorded hours\n")
+
+        result = []
+
+        for row in obj_res_6b:
+            result.append([row['_id'], round(row['sum'])])
+        
+        return result
 
     def total_distance_in_km_walked_in_2008_by_userid_112(self):
         """ 
@@ -268,8 +279,7 @@ class Repository:
             # Calculate the distance between the two points using haversine
             distance += haversine((lat1, lon1), (lat2, lon2))
 
-        print(
-            "The total distance walked in 2008 by user 112 is {:.2f} km".format(distance))
+        return distance
 
     def top_20_users_gained_most_altitude_meters(self):
         """
@@ -318,9 +328,12 @@ class Repository:
         user_altitude_array = sorted(
             user_altitude.items(), key=lambda x: x[1], reverse=True)
 
-        print("nr. user_id altitude\n")
+        result = []
+
         for i, (user_id, altitude) in enumerate(user_altitude_array[:20]):
-            print("{:3} {:>7} {:>8.0f}".format(i + 1, user_id, altitude))
+            result.append([i + 1, user_id, round(altitude)])
+        
+        return result
 
     def invalid_activities_per_user(self):
         """
@@ -365,9 +378,12 @@ class Repository:
         # Sorting the dict by the date_time gained
         sorted_invalid_activities = sorted(invalid_user_activities.items())
 
-        print("user_id  invalid_activities\n")
+        result = []
+
         for user_id, activities in sorted_invalid_activities:
-            print("{} {:>23}".format(user_id, len(activities)))
+            result.append([user_id, len(activities)])
+        
+        return result
 
     def users_tracked_activity_in_the_forbidden_city_beijing(self):
         """
@@ -394,10 +410,14 @@ class Repository:
             }
         ])
 
-        for row in list(res):
-            print("User {} has trackpoints in the forbidden city".format(row['_id']))
+        result = []
 
-    def users_registered_transportation_mode_and_their_most_used_transportation_mode(self):
+        for row in list(res):
+            result.append(f"User {row['_id']} has trackpoints in the forbidden city\n")
+
+        return result
+
+    def most_used_transportation_mode_per_user(self):
         """
         Query 11 - Find all users who have registered transportation_mode and their most used transportation_mode
         """
@@ -435,8 +455,10 @@ class Repository:
         # Sorting the dict by the date_time gained
         sorted_user_transportation_mode = sorted(user_transportation_mode.items())
 
-        print("user_id transportation_mode count\n")
+        result = []
+
         for user_id, transportation_modes in sorted_user_transportation_mode:
             transportation_mode = max(transportation_modes, key=transportation_modes.get)
-
-            print("{:7} {:18} {:6}".format(user_id, transportation_mode, transportation_modes[transportation_mode]))
+            result.append([user_id, transportation_mode, transportation_modes[transportation_mode]])
+        
+        return result
